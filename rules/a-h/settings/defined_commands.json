@@ -1,0 +1,45 @@
+[
+  {
+    "extension": ".md",
+    "purpose": "lint_and_fix",
+    "command": "npx markdownlint-cli2 --fix --no-globs"
+  },
+  {
+    "extension": ".mdc",
+    "purpose": "lint_and_fix",
+    "command": "npx markdownlint-cli2 --fix --no-globs"
+  },
+  {
+    "extension": ".ts",
+    "purpose": "lint_and_fix",
+    "command": "npx eslint --fix"
+  },
+  {
+    "purpose": "Build and run containers",
+    "command": "make up"
+  },
+  {
+    "purpose": "Stop and remove containers and networks",
+    "command": "make down"
+  },
+  {
+    "purpose": "Stop running containers",
+    "command": "make stop"
+  },
+  {
+    "purpose": "Start stopped containers",
+    "command": "make start"
+  },
+  {
+    "purpose": "List project containers",
+    "command": "make ps"
+  },
+  {
+    "purpose": "Delete unused Docker objects",
+    "command": "make prune"
+  },
+  {
+    "purpose": "Start bash in rstudio container",
+    "command": "make bash"
+  }
+]
