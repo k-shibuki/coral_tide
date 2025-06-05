@@ -1,0 +1,19 @@
+task_id, condition, report_id, evaluation_id, score
+task1  , c        , pilot01  ,             1,    24
+task1  , c        , pilot01  ,             2,    24
+task1  , c        , pilot01  ,             3,    25
+task1  , c        , pilot02  ,             1,    22
+task1  , c        , pilot02  ,             2,    22
+task1  , c        , pilot02  ,             3,    23
+task1  , c        , pilot03  ,             1,    23
+task1  , c        , pilot03  ,             2,    21
+task1  , c        , pilot03  ,             3,    20
+task2  , c        , pilot01  ,             1,    20
+task2  , c        , pilot01  ,             2,    21
+task2  , c        , pilot01  ,             3,    21
+task2  , c        , pilot02  ,             1,    19
+task2  , c        , pilot02  ,             2,    22
+task2  , c        , pilot02  ,             3,    18
+task2  , c        , pilot03  ,             1,    19
+task2  , c        , pilot03  ,             2,    21
+task2  , c        , pilot03  ,             3,    20

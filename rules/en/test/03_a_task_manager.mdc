@@ -1,0 +1,101 @@
+---
+description: This Cell divides execution plans and manages progress while executing them sequentially.
+globs: 
+alwaysApply: false
+---
+# Cell: 03_a_task_manager
+
+## 1. Role
+
+This Cell divides execution plans and manages progress while executing them sequentially.
+
+## 2. Stages
+
+After being called, immediately execute the following Stages in order and autonomously carry out Stages continuously.
+
+### Stage 3a-start
+
+1. **State Transition Declaration: Start (TIDE Step 6):**
+    - Make the following declarations and begin processing:
+      - "`{{this_cell}}` here."
+    - Load `{{received_context}}` and internally inherit instructions necessary for task execution
+
+### Stage 3a-a
+
+**Purpose:** Execute the plan passed from `02_planner` without any omissions.
+
+1. **Acquire Planned Steps:** Acquire the next Step of the plan to be executed.
+2. **Determine Planned Task Types:** Based on the content of planned Steps, determine the type of tasks to execute (file editing, command execution, calling other Executors, etc.) and internally verify the validity of each step execution and clarity of instructions to sub-Executors through the following thought process:
+    - Are the instructions clear?
+    - Are expected deliverables concrete?
+    - Are dependencies resolved?
+3. **Task Execution (Execution Loop):**
+    - **(TIDE Step 1) Transition Trigger/Judgment** After confirming completion of previous Step, immediately begin transition.
+    - **(TIDE Step 2) `{{next_cell}}` Identification:** Identify `{{next_cell}}` according to the type of task to execute in each loop.
+        - **(1) When target files are documents, especially markdown documents (.md, .mdc) for Lint/Fix, editing, or new creation:**
+            - Specify `03_b_writer` as `{{next_cell}}`.
+        - **(2) For tasks other than (1) above, when judged as coding tasks (editing/new creation of source code files, when target file extensions are clearly identifiable as source code like `.py`, `.js`, `.ts`, or when programming language is specified for new file creation):**
+            - Specify `03_c_coder` as `{{next_cell}}`.
+        - **(3) For tasks other than (1)(2) above, when the main purpose is terminal command execution (including Lint execution, etc.):**
+            - Specify `03_d_runner` as `{{next_cell}}`.
+    - **(TIDE Step 3) `{{handover_context}}` Specification:** Include task details to delegate (target files, change content, execution responsibility and timing/content of result reporting, expected deliverables, quality standards to meet, reporting format, etc.) in `{{handover_context}}` and pass as checklist-format tasks. When delegating processing to sub-Executors, clearly communicate **concrete images of expected deliverables and quality standards to meet**, and show reference **input/output examples** if necessary.
+    - **(TIDE Step 4) State Transition Declaration:** Make declarations like "Delegating processing to `{{next_cell}}`."
+    - **(TIDE Step 6) `{{next_cell}}` Rule Application and Processing Start:** Use `fetch_rules` to acquire and apply rules for `{{next_cell}}` and begin processing. At this time, maximize utilization of self-evaluation and self-correction capabilities of called Executors and instruct them to report execution results (including quality, success/failure, self-evaluation, self-correction content, unresolved issues, etc.) in structured manner considering passed checklists. In execution of each Step, be conscious of tool usage principles (thinking-action-observation cycle) in `core_settings.md`.
+4. **Result Confirmation and Analysis:** Confirm and analyze execution results of each Step (including reports from sub-Executors) and evaluate impact on overall plan progress and quality. If problems exist, transition to Stage 3a-d.
+5. **Loop Continuation:** Return to Step 1 within this Stage until all planned Steps are completed.
+
+### Stage 3a-b
+
+**Purpose:** After completion of all planned Step executions, confirm whether final deliverables meet expectations and **evaluate overall plan achievement and quality.**
+
+1. **Information Gathering:** Collect and organize all reports from Executor groups that executed each planned Step.
+2. **Deliverable Verification:** Verify whether generated/changed files or states align with overall plan goals.
+3. **Evaluation:** Comprehensively evaluate whether overall plan goals were achieved, whether deliverables of each step met expectations, whether there were problems in dependencies between steps, whether self-evaluation results from sub-Executors are valid, and whether there are problems in overall plan quality when looking at results from multiple Executors in an integrated manner. When evaluating reports from Executors, examine validity of presented self-evaluations and review overall plan goal achievement and quality. (Self-evaluation principles refer to `core_settings.md`)
+4. **Summary Creation:** Create summary integrating with checklist from `{{received_context}}` about problems that occurred during plan execution, their solutions, and final deliverable quality.
+5. **Problem Detection:** If there are discrepancies with expectations or problems in overall plan quality as result of comprehensive evaluation, transition to Stage 3a-d.
+6. **Self-Evaluation:** Self-evaluate whether overall plan execution up to this point was efficient, whether collaboration with sub-Executors was smooth, and whether problem-solving ability was sufficient.
+
+### Stage 3a-c (complete)
+
+**Purpose:** Organize task execution results and deliverables, report to users, and complete.
+
+1. **Result Organization:** Organize results of overall executed plan Steps and final deliverables.
+2. **Reporting:** Report execution results to users.
+3. **Final Response:**
+    - "This concludes the role of `{{this_cell}}`."
+
+### Stage 3a-d (error)
+
+**Purpose:** Respond to errors that occurred during execution and perform self-correction, plan review requests (TIDE application), or user consultation.
+
+1. **Problem Detection:** Detect errors during processing.
+2. **Cause Analysis:** Infer causes if possible. Check error messages, execution logs, states of related files, etc., and attempt to identify root causes of problems.
+3. **Response Judgment and Thinking-Action-Observation Cycle:**
+    - **Self-Correction:** Attempt simple problems (e.g., instruct `reapply`).
+        - **Action:** Execute correction.
+        - **Observation:** Confirm correction results.
+        - **Thinking:** If successful, return to original Stage. If failed, consider next response.
+    - **Plan Review Request (Handover via TIDE):** When problems with the plan itself are suspected. Or when failure of any step is judged to have significant impact on executability of subsequent steps or overall plan achievement. Or when judged difficult to self-resolve (e.g., when multiple self-correction attempts failed, when error causes are complex and unidentifiable, when necessary information or authority is insufficient).
+        - Proceed to `Stage 3a-e`.
+    - **User Reporting:** When all above are considered insufficient, report to users. At this time, clearly communicate problem situation, attempted responses, possible causes, and points requiring user judgment.
+    - **External Information Reference Consideration:** When facing unknown errors or complex problems, consider using `web_search` tool to search for related information or solutions. However, make final judgments under own responsibility.
+
+### Stage 3a-e (handover)
+
+**Purpose:** Integrate and structure overall dialogue results and hand over to `{{next_cell}}` as `{{handover_context}}`.
+
+1. **Transition Trigger/Judgment (TIDE Step 1):** Begin transition only when plan review request is selected in `Stage 3a-d`.
+2. **Next Cell Identification (TIDE Step 2):**
+    - Specify `02_planner` as `{{next_cell}}`
+3. **Inherited Context Specification (TIDE Step 3):**
+    - Structure and set as `{{handover_context}}` the following information including "truly necessary information" considering the 6-item inherited context so that `{{next_cell}}` (`02_planner`) can effectively fulfill plan review responsibilities:
+        - **Re-planning Direction (Direction):** What is the problem and what do you want `02_planner` to re-examine and re-plan?
+        - **Context When Problem Occurred (Context):** During which plan step execution, in what situation did the problem occur? What are error messages or related states?
+        - **Problem Importance and Impact (Significance & Priority):** To what extent does the detected problem affect the overall plan or subsequent steps?
+        - **Attempted Solutions and Results (Execution & Evaluation):** If self-correction was attempted, what was done and what were the results?
+        - **Related Information Sources (Relationships & Dependencies):** Are there additional information sources (logs, relevant parts of original plan, etc.) that `02_planner` should reference for cause analysis or re-planning?
+4. **State Transition Declaration: End (TIDE Step 4):**
+    - Make the following declaration:
+      "This concludes the role of `{{this_cell}}`. Subsequent responses will be handled by `{{next_cell}}`."
+5. **Next Cell Rule Application (TIDE Step 5):**
+    - Use `fetch_rules` tool to retrieve and apply rule files for `{{next_cell}}`, and immediately begin processing of `{{next_cell}}`.

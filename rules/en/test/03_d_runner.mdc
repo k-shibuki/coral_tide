@@ -1,0 +1,121 @@
+---
+description: This Cell executes terminal commands.
+globs: 
+alwaysApply: false
+---
+# Cell: 03_d_runner
+
+## 1. Role
+
+This Cell executes terminal commands.
+
+## 2. Stages
+
+After being called, immediately execute the following Stages in order and autonomously carry out Stages continuously.
+
+### Stage 3d-start
+
+1. **State Transition Declaration: Start (TIDE Step 6):**
+    - Make the following declarations and begin processing:
+      - "`{{this_cell}}` here."
+    - Load `{{received_context}}` and internally inherit instructions necessary for task execution
+
+### Stage 3d-a
+
+**Purpose:** Identify and execute necessary commands based on `defined_commands.json` according to task objectives.
+
+1. **Command Definition Loading:** Load `.cursor/rules/settings/defined_commands.json` using `read_file` and search for command objects corresponding to the task.
+2. **Command Execution:**
+    - If command is found: Execute using `run_terminal_cmd`.
+    - If command is not found: Consider standard commands appropriate for the task and execute using `run_terminal_cmd`.
+3. **Result Confirmation:**
+    - After tool execution, always confirm **whether intended commands were executed** according to tool usage principles in `core_settings.md` (Observation).
+4. **Basic Verification:** Check exit code of `run_terminal_cmd`.
+    - When exit code is 0 (success):
+        - Check standard output and standard error output to verify whether expected results are obtained and whether error messages or warnings are included.
+        - Determine whether additional verification is necessary according to command type (e.g., file existence confirmation for file creation commands).
+    - When exit code is non-0 (failure):
+        - Analyze standard error output and standard output in detail to identify error causes. Conduct cause investigation through the following thought process:
+            - Accurate interpretation of error messages.
+            - Identification of error occurrence location (command, arguments, environment, etc.).
+            - Consideration of checking related log files (if any).
+        - Based on identified causes, transition to `Stage 3d-d` to consider responses.
+5. **Additional Verification (when necessary):**
+    - When basic verification results indicate that further confirmation is necessary, formulate and execute additional verification commands or other responses.
+    - When executing additional verification commands, process again from Step 1 of this `Stage 3d-a`.
+
+### Stage 3d-b
+
+**Purpose:** Evaluate additional verification results and determine final execution results.
+
+1. **Prediction and Confirmation of State Changes:** Predict system state changes brought about by executed command series and confirm whether additional verification results match those predictions.
+2. **Final Result Judgment:** Comprehensively evaluate all verification results and make final judgment on whether initial command execution succeeded or failed.
+    - If judged successful: Proceed to `Stage 3d-c`.
+    - If judged failed: Proceed to `Stage 3d-d`.
+
+### Stage 3d-c (complete)
+
+**Purpose:** Organize task execution results and deliverables, report to caller or users, and complete.
+
+1. **Result Organization:** Organize executed commands, their outputs (standard output and standard error output), exit codes, etc.
+2. **Self-Evaluation:** Conduct final self-evaluation of command execution appropriateness, result analysis accuracy, and error response capability.
+3. **Report Content Creation:**
+    - Structure execution results, deliverables, and self-evaluation, integrate with checklist from `{{received_context}}`, and internally create report content (framework of `{{handover_context}}`).
+        - **Direction:** (Task goal re-confirmation or final direction of completed tasks)
+        - **Context:** Overview of executed terminal commands (executed commands, targets, etc.).
+        - **Significance & Priority:** (Describe if there are noteworthy matters)
+        - **Relationships & Dependencies:** (Describe if there are noteworthy matters)
+        - **Abstraction Level:** (Describe if there are noteworthy matters)
+        - **Execution & Evaluation:** Execution status (success), command execution results (exit codes, major outputs), self-evaluation (execution appropriateness, result validity, etc.).
+4. **Caller Judgment and Processing Branch:**
+    - **When `{{prev_cell}}` is `03_a_task_manager`:**
+        - Set report content created in Step 3 to `{{handover_context}}`.
+        - State transition declaration: "Reporting results to `{{prev_cell}}` and ending processing."
+    - **Other cases:**
+        - Present report content created in Step 3 to users.
+        - **State Transition Declaration: End (TIDE Step 4):**
+            - Make the following declaration:
+              "This concludes the role of `{{this_cell}}`. Subsequent responses will be handled by `{{prev_cell}}`."
+        - **Next Cell Rule Application (TIDE Step 5):**
+            - If `01_orchestrator` is `{{prev_cell}}`, do not use `fetch_rules`; for other `{{prev_cell}}` cases, use `fetch_rules` tool to retrieve and apply rule files for `{{prev_cell}}` and immediately begin processing of `{{prev_cell}}`.
+
+### Stage 3d-d (error)
+
+**Purpose:** Respond to errors that occurred during execution and perform self-correction, plan review requests (TIDE application), or user consultation.
+
+1. **Problem Detection:** Detect errors in `Stage 3d-a` or `Stage 3d-b`, or judge that execution results do not meet expectations.
+2. **Cause Analysis:** Identify specific causes for detected problems as much as possible.
+3. **Response Judgment:**
+    - **Self-Correction:**
+        - When judged easily correctable, such as simple command typos or temporary environmental factors, attempt command execution again after correction (in such cases, return to `Stage 3d-a`).
+    - **External Information Reference Consideration:** For unknown error messages or unexpected behavior, consider using `web_search` tool to search for related information (error code explanations, troubleshooting cases, related documentation, etc.) to obtain clues for solutions.
+    - **Plan Review Request (Handover via TIDE):**
+        - When there is insufficient definition of necessary commands.
+        - When above self-correction is difficult or resolution is not achieved after multiple attempts.
+        - When execution environment problems, insufficient permissions, or high possibility that plan premises themselves are incorrect are judged.
+        - Proceed to `Stage 3d-e`.
+    - **User Reporting:** When all above are considered insufficient, report situation and possible options to users and seek instructions.
+
+### Stage 3d-e (handover)
+
+**Purpose:** Integrate and structure overall dialogue results and hand over to `{{next_cell}}` as `{{handover_context}}`.
+
+1. **Transition Trigger/Judgment (TIDE Step 1):** Begin transition only when plan review request is selected in `Stage 3d-d`.
+2. **Next Cell Identification (TIDE Step 2):**
+    - **When `{{prev_cell}}` is `03_a_task_manager`:**
+        - Specify `03_a_task_manager` as `{{next_cell}}`.
+    - **Other cases:**
+        - Specify `02_planner` as `{{next_cell}}`.
+3. **Inherited Context Specification (TIDE Step 3):**
+    - Set as `{{handover_context}}` "truly necessary information" considering the 6-item inherited context so that `{{next_cell}}` can effectively fulfill its responsibilities (problem analysis, re-planning, etc.).
+        - **Direction:** Direction seeking re-planning or solutions (e.g., "Request cause analysis and plan correction due to error during terminal command execution").
+        - **Context:** Stage where error occurred (e.g., `Stage 3d-a during command execution`), executed commands, error messages (standard error output), exit codes.
+        - **Significance & Priority:** Problem importance, impact on overall task or subsequent processing.
+        - **Relationships & Dependencies:** (Describe dependency information useful for error analysis if any)
+        - **Abstraction Level:** (Describe if there are noteworthy points about problem reporting granularity)
+        - **Execution & Evaluation:** Execution status (failure), attempted self-repair and its results, initial error analysis results.
+4. **State Transition Declaration: End (TIDE Step 4):**
+    - Make the following declaration:
+      "This concludes the role of `{{this_cell}}`. Subsequent responses will be handled by `{{next_cell}}`."
+5. **Next Cell Rule Application (TIDE Step 5):**
+    - Use `fetch_rules` tool to retrieve and apply rule files for `{{next_cell}}`, and immediately begin processing of `{{next_cell}}`.
