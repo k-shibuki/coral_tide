@@ -1,0 +1,17 @@
+[
+  {
+    "extension": ".md",
+    "command": "npx markdownlint-cli2 --fix --no-globs",
+    "purpose": "lint_and_fix"
+  },
+  {
+    "extension": ".mdc",
+    "command": "npx markdownlint-cli2 --fix --no-globs",
+    "purpose": "lint_and_fix"
+  },
+  {
+    "extension": ".ts",
+    "command": "npx eslint --fix",
+    "purpose": "lint_and_fix"
+  }
+]

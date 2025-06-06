@@ -1,0 +1,112 @@
+---
+description: このルールは、Markdown ファイル (.md, .mdc) の新規作成、編集、および Lint/Fix を担うCellを記述します。
+globs: 
+alwaysApply: false
+---
+# Cell 3c: Markdown Editing Executor Rule
+
+## 1. 役割と責任
+
+このルールは、Markdown ファイル (.md, .mdc) の新規作成、編集、および Lint/Fix を担うCellを記述する。
+このCellは以下の主要な責任を持つ。
+
+- 指示に基づき、Markdown 編集・作成タスクを実行する。
+- Markdown スタイルガイド (`.markdownlint-cli2.jsonc`, `configs/markdown.md`) を遵守する。
+- 編集/作成した Markdown に対して、設定ファイル (`defined_commands.json`) に基づく Lint/Fix を実行する。
+- 実行結果を報告する。
+- エラー発生時は定義された手順に従って対応する。
+
+## 2. 依存関係
+
+- 入力:
+    - 呼び出し元のCell (`{{invoking_cell}}`)からのタスク指示とコンテキスト (対象ファイル、編集内容など)
+- 参照:
+    - 常時参照
+        - `.cursor/rules/configs/behavior.md`: 応答スタイル
+        - `.cursor/rules/configs/prompting.md`: 思考プロセス
+        - `.cursor/rules/configs/defined_commands.json`: Lint コマンド定義
+    - 必要時参照
+        - `.cursor/rules/configs/markdown.md`: Markdown スタイルガイド (補足)
+        - プロジェクト基本文書 (`architecture.md`)
+- 出力/連携先:
+    - ユーザーへの報告 (正常完了時の実行結果)
+    - `01_orchestrator.mdc` または `02_planner.mdc` への報告 (エラー発生による差し戻し/相談の場合)
+
+## 3. Stages (ワークフローステップ)
+
+呼び出された後、直ちに以下の Stage を順に実行する。
+
+### Stage 3c-start: Initialization and Context Confirmation (TIDE Protocol Step 7)
+
+**目的:** Cell開始を宣言し、`01_orchestrator` からのコンテキスト (タスク指示) を確認する。
+
+1.  **状態遷移宣言: 開始 (TIDE Step 7):**
+    > 「`03_c_executor_markdownedit` です。」
+2. **コンテキスト確認:** `{{invoking_cell}}` から渡された引継ぎ重要コンテキストを内部的に確認する。
+
+### Stage 3c-a: Execution Setup
+
+**目的:** Markdown 編集に必要な環境とコンテキストを準備・確認する。
+
+1.  **実行環境確認:** 必要なツール (npx, markdownlint-cli2 など) が利用可能か確認する。
+2.  **指示再確認:** Stage 3c-start で確認した指示内容 (対象ファイル、変更点) を再確認する。
+3.  **対象ファイル準備:** `read_file` で編集対象ファイルの最新状態を読み込む(新規作成の場合は不要)。
+
+### Stage 3c-b: Core Markdown Execution
+
+**目的:** 指示に基づき、`edit_file` ツールを使用して Markdown の編集または新規作成を行う。
+
+1.  **Markdown 編集/作成:** `edit_file` ツールを呼び出し、指示された Markdown 変更または新規ファイル作成を実行する。
+    - Markdown スタイルガイドを遵守する。
+    - 指示されていない変更は行わない。
+2.  **結果確認:** `edit_file` の結果を確認し、失敗した場合は Stage 3c-e (Error Handling) へ移行する。
+
+### Stage 3c-c: Linting & Fix
+
+**目的:** Stage 3c-b で編集/作成された Markdown ファイルに対して、`defined_commands.json` に基づき Lint/Fix を実行する。
+
+1.  **対象ファイル特定:** Stage 3c-b で編集/作成されたファイルパス (`{{target_file}}`) を取得する。
+2.  **ファイル拡張子取得:** 対象ファイルの拡張子 (`{{file_extension}}`) を取得する (`.md` または `.mdc` を想定)。
+3.  **コマンド定義読み込み:** `.cursor/rules/configs/defined_commands.json` を `read_file` で読み込み、JSON 解析する。失敗した場合は Stage 3c-e へ移行する。
+4.  **コマンド検索:** `{{file_extension}}` に対応するコマンドオブジェクトを JSON データから検索する。
+5.  **コマンド実行:**
+    - コマンドが見つかった場合: `run_terminal_cmd` で `[見つかったコマンド] {{target_file}}` を実行する。失敗した場合は Stage 3c-e へ。
+    - コマンドが見つからなかった場合: Stage 3c-d へ (Lint 対象外または設定なし)。
+
+### Stage 3c-d: Self-Correction and Self-Critique
+
+**目的:** 生成/編集したMarkdownに対し、自己評価と自己修正を行い、品質を向上させる。
+
+1.  **自動チェック:** `Stage 3c-c` のLint結果を再確認する。
+2.  **観点に基づく自己評価:**
+    - 指示された編集内容が正確に反映されているか確認する。
+    - スタイルガイド (`.cursor/rules/configs/markdown.md`) に完全に準拠しているか、細部まで確認する。
+    - 文章全体の論理構造は明確か、読者に誤解を与える表現はないか確認する。
+    - 誤字脱字、不適切な専門用語の使用がないか確認する。
+3.  **改善提案と自己修正:**
+    - 上記評価に基づき、改善可能な点があればリストアップする。
+    - 軽微なスタイル違反、誤字脱字、表現の調整などは、`edit_file` や `reapply` を用いて自己修正を試みる、
+    - 構成変更や大幅な加筆修正が必要と判断した場合は、問題点と複数の改善案をユーザーへの報告に含める。
+4.  **問題検出:** 自己評価・修正後も指示との不一致や重大な問題が残存する場合は Stage 3c-f (Error Handling) へ移行する。
+
+### Stage 3c-e: Reporting (Normal Completion)
+
+**目的:** タスクの実行結果、成果物、自己評価・自己修正の結果などを整理し、ユーザーに報告して完了する。
+
+1.  **結果整理:** 実行結果、変更/作成した Markdown の概要、Lint 結果 (Stage 3c-c)、**および Stage 3c-d での自己評価結果、自己修正の内容（または改善提案）**を整理する。
+2.  **報告:** 実行結果をユーザーに報告する。
+3.  **最終応答:**
+    > 「これをもって、`03_c_executor_markdownedit` としての処理は完了します。」
+
+### Stage 3c-f: Error Handling & Handover (TIDE Protocol on Handover)
+
+**目的:** 実行中に発生したエラーに対応し、自己修正、上位Cellへの報告/相談を行う。
+
+1.  **問題検知:** 各 Stage でのエラー (edit_file 失敗、Lint エラー未解消、指示との不整合など) を検知する。
+2.  **原因分析:** 可能であれば原因を推測する。
+3.  **対応判断:**
+    - **自己修正:** 簡単な問題は試行する (例: `reapply`)。成功すれば元の Stage へ。
+    - **上位Cellへの相談/報告:** 自己修正困難な場合。
+        - **TIDE Handover (計画見直しの場合):** `{{invoking_cell}}` への Handover を検討する。
+        - **ユーザー相談 (直接実行の場合):** 問題と状況を報告し指示を仰ぐ。
+4.  **ユーザーへの報告・相談 (ユーザー相談選択時):** 状況を明確に報告する。

@@ -1,0 +1,52 @@
+---
+description: 
+globs: *.tsx,*.ts,*.md
+alwaysApply: false
+---
+globs: ["**/*.ts", "**/*.tsx", "**/*.md"]
+
+# linting.mdc - Linting Process Rules
+
+## 1. 目的と役割
+
+このルールは、プロジェクト内の主要なファイル (**TypeScript**, **Markdown**) の品質と一貫性を維持するための Linting プロセスを定義します。
+ファイル種別に応じて適切な Linting ツールを実行し、問題を検出・修正することを目的とします。
+このルールは `@orchestrator.mdc` によって、ファイルの新規作成・編集時やコミット前などに呼び出されます。
+
+## 2. 主要プロセス/ルール詳細
+
+### 2.1 TypeScript Linting (.ts, .tsx)
+
+- **対象:** TypeScript ファイル (`.ts`, `.tsx`)
+- **ツール:** ESLint
+- **ルール定義:** `.eslintrc.js`
+- **実行コマンド:**
+  - **Linting:** `npm run lint:ts` (内部的に `eslint . --ext .ts,.tsx`)
+  - **自動修正:** `npm run lint:ts:fix` (内部的に `eslint . --ext .ts,.tsx --fix`)
+- **プロセス:**
+  1. 対象ファイルの編集または新規作成後、`run_terminal_cmd` を使用して `npm run lint:ts:fix [対象ファイルパス]` を実行します。
+  2. ESLint がエラーまたは警告を報告した場合、自動修正が試みられます。
+  3. 自動修正で解決できないエラーや警告が残った場合は、その内容を分析し、手動で修正 (`edit_file`) するか、解決が困難な場合はユーザーに報告・相談してください。
+
+### 2.2 Markdown Linting (.md)
+
+- **対象:** Markdown ファイル (`.md`)
+- **ツール:** markdownlint-cli2
+- **ルール定義:** `.markdownlint.jsonc`
+- **静的スタイルガイド:** `docs/styleguide/markdown.md` (書き方の詳細はこちらを参照)
+- **実行コマンド:**
+  - **Linting:** `npm run lint:md` (内部的に `markdownlint-cli2 "**/*.md" ...`)
+  - **自動修正:** `npm run lint:md:fix` (内部的に `markdownlint-cli2 --fix "**/*.md" ...`)
+- **プロセス:**
+  1. 対象ファイルの編集または新規作成後、`run_terminal_cmd` を使用して `npm run lint:md:fix [対象ファイルパス]` を実行します。
+  2. markdownlint がエラーを報告した場合、自動修正が試みられます。
+  3. コマンドがエラーを報告し続ける場合 (終了コードが 0 以外) 、最大3回までコマンド実行を繰り返します。
+  4. 3回試行してもエラーが解消されない場合、または自動修正では対応できないルール (例: 構造的な問題) が指摘された場合は、修正を中断し、ユーザーに状況を報告・相談してください。
+
+## 3. AI への指示/最終確認事項
+
+- `@orchestrator.mdc` の指示に基づき、適切なタイミングでこの `@linting.mdc` を参照してください。
+- ファイルの新規作成または編集 (`edit_file`) を行った場合は、**直後に** 対象ファイルの種別に応じて、上記 **セクション 2.1** または **セクション 2.2** の Linting プロセスを実行してください。
+- Linting ツール (`ESLint`, `markdownlint-cli2`) が報告するエラーや警告は、コードとドキュメントの品質を維持するために重要です。原則として、すべての問題を解決するように努めてください。
+- Linting プロセスで解決できない問題が発生した場合や、ルール解釈に不明点がある場合は、自己判断で進めずにユーザーに確認を求めてください。
+
