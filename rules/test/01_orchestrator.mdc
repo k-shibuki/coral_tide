@@ -20,7 +20,7 @@ alwaysApply: false
 ### Stage 1-start
 
 1. **中核ルール読み込み（必須）:**  `.cursor/rules/settings/core_settings.md` を **`read_file` ツールで明示的に全文読み込む。
-2. **定義済みコマンドの把握（必須）:** `.cursor/rules/settings/defined_commands.json`を `read_file` ツールで全文読み込む。
+2. **定義済みコマンドの把握（必須）:** `Makefile`を `read_file` ツールで全文読み込む。
 3. **状態遷移宣言: 開始 (TIDE Step 6):**
     - 以下の宣言を行う。
       - "`{{this_cell}}`です。"
@@ -32,7 +32,6 @@ alwaysApply: false
     - 以下に該当する場合は`Step 2. 情報ギャップの把握`をスキップして**該当Stageに進む。 
       - `{{prev_cell}}` が `00_sensemaker` である: `Stage 1-c: Step3 (B)`に進む。
       - `{{prev_cell}}` が`00_sensemaker` ではなく、かつ nullではない: `Stage 1-b`に進む。
-2. 定義済みコマンドを利用して現在の日時を取得するコマンドを**実行**し、情報検索の基準とする。
 
 ### Stage 1-b
 

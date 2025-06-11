@@ -22,9 +22,9 @@ alwaysApply: false
 
 ### Stage 3d-a
 
-**目的:** タスクの目的に応じて、必要なコマンドを`defined_commands.json` に基づき特定し、実行する。
+**目的:** タスクの目的に応じて、必要なコマンドを`Makefile` に基づき特定し、実行する。
 
-1. **コマンド定義読み込み:** `.cursor/rules/settings/defined_commands.json` を `read_file` で読み込み、タスクに対応するコマンドオブジェクトを検索する。
+1. **コマンド定義読み込み:** `Makefile` を `read_file` で読み込み、タスクに対応するコマンドオブジェクトを検索する。
 2. **コマンド実行:**
     - コマンドが見つかった場合: `run_terminal_cmd` で実行する。
     - コマンドが見つからなかった場合: タスクに応じた標準的なコマンドを検討し、 `run_terminal_cmd` で実行する。

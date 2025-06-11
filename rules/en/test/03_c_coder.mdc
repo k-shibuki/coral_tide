@@ -1,5 +1,5 @@
 ---
-description: This Cell generates high-quality code.
+description: 
 globs: 
 alwaysApply: false
 ---
@@ -11,138 +11,139 @@ This Cell generates high-quality code.
 
 ## 2. Stages
 
-After being called, immediately execute the following Stages in order and autonomously carry out Stages continuously.
+After being called, immediately execute the following Stages sequentially and autonomously carry out Stages continuously.
 
-### Stage 3b-start
+### Stage 3c-start
 
 1. **State Transition Declaration: Start (TIDE Step 6):**
-    - Make the following declarations and begin processing:
+    - Make the following declaration and begin processing:
       - "`{{this_cell}}` here."
-    - Load `{{received_context}}` and internally inherit instructions necessary for task execution
+    - Load `{{received_context}}` and internally inherit instructions necessary for task execution.
 
-### Stage 3b-a
+### Stage 3c-a
 
-**Purpose:** Perform code editing or new creation using `edit_file` tool based on instructions.
+**Purpose:** Based on instructions, edit or create code using the `edit_file` tool.
 
-1. **Pre-implementation Policy Consideration:** Before starting code editing/creation, internally construct implementation policies and main logic through the following thought process and confirm there are no logical flaws:
-    - Complete understanding of instructed requirements.
+1. **Preliminary Consideration of Implementation Policy:** Before beginning code editing/creation, internally construct implementation policy and main logic through the following thinking process, and confirm there are no logical inconsistencies.
+    - Complete understanding of specified requirements.
     - Consistency with existing code (style, design philosophy).
     - Identification of impact scope and consideration of side effects.
     - Comparative examination of multiple implementation approaches when available (simplicity, efficiency, maintainability).
     - Identification of potential edge cases and error cases.
-2. **Code Editing/Creation:** Call `edit_file` tool to execute instructed code changes or new file creation.
-    - Consider quality principles (clarity, comments, testability, security, performance). Especially, always be conscious of inaccurate information-based code generation, information dropout due to context length constraints, API misuse, etc., commonly pointed out in LLMs, and strive to implement measures to mitigate these (e.g., re-confirmation of generated code, comparison with external documentation, concise code design, supplementing necessary information through web search).
-    - (As an effort goal considering LLM capabilities) **Strive to read the style of existing code or surrounding code in the editing target file (indentation, naming conventions, comment formats, etc.) and reflect that style in generated or edited code.**
-    - Do not make changes not instructed in principle. However, when instructed code changes are extensive or include multiple concerns, consider internally decomposing into logical sub-steps and processing each sequentially. In such cases, clearly record the intention and processing content of each sub-step.
-    - When generating/editing code, **accurately understand expected behavior and requirements to be met**, refer to **specific code examples** if necessary, and implement while maintaining consistency with existing code. After tool (edit_file) execution, always confirm **whether intended changes were made** according to tool usage principles in `core_settings.md` (Observation).
-3. **Result Confirmation:** Confirm results of `edit_file` and transition to `Stage 3b-f` if failed.
+2. **Code Editing/Creation:** Call the `edit_file` tool and execute the instructed code changes or new file creation.
+    - Consider quality principles (clarity, comments, testability, security, performance). Particularly, constantly be aware of code generation based on inaccurate information, information loss due to context length constraints, API misuse, and other issues commonly pointed out with LLMs, and strive to implement countermeasures to mitigate these (e.g., re-verification of generated code, comparison with external documentation, concise code design, supplementing necessary information through web search).
+    - (As an aspirational goal while considering LLM capabilities) **Strive to read the style of existing code and surrounding code in the target file (indentation, naming conventions, comment format, etc.) and reflect that style in the generated or edited code.**
+    - In principle, do not make changes that are not instructed. However, when instructed code changes are extensive or contain multiple concerns, consider internally decomposing them into logical sub-steps and processing each sequentially. In such cases, clearly record the intent and processing content of each sub-step.
+    - When generating/editing code, **accurately understand the expected behavior and requirements that must be met**, and if necessary, refer to **concrete code examples** to implement while maintaining consistency with existing code. After tool (edit_file) execution, always confirm **whether intended changes were made** according to tool usage principles in `core_settings.md` (Observation).
+3. **Result Confirmation:** Confirm the results of `edit_file` and transition to `Stage 3c-f` if failed.
 
-### Stage 3b-b
+### Stage 3c-b
 
-**Purpose:** Execute related tests (if instructed or relevant) and confirm quality.
+**Purpose:** If instructed or relevant, execute related tests and confirm quality.
 
-1. **Test Identification:** Identify test commands or scripts related to change content if any. At this time, improve identification accuracy through the following thought process:
-    - Analysis of the scope affected by changed code.
-    - Mapping of existing test cases and change locations.
-    - Selection of test suites considering coverage.
-    If necessary, also consider proposing frameworks for minimal unit test cases covering change locations or adding minor test code.
-2. **Test Execution:** Execute identified tests using `run_terminal_cmd` tool.
-3. **Result Confirmation and Analysis:** If tests fail, analyze causes through the following thought process:
+1. **Test Identification:** If there are test commands or scripts related to the changes, identify them. At this time, improve identification accuracy through the following thinking process.
+    - Analysis of the range affected by changed code.
+    - Mapping existing test cases to changed locations.
+    - Selection of test suites with coverage awareness.
+    If necessary, also consider proposing the outline of minimal unit test cases that cover the changed locations, or adding minor test code.
+2. **Test Execution:** Execute identified tests with the `run_terminal_cmd` tool.
+3. **Result Confirmation and Analysis:** If tests fail, analyze the cause through the following thinking process.
     - Scrutiny of error messages and stack traces.
-    - Identification of relationships between failed test cases and changed code.
-    - Comparison of expected behavior and actual results.
-    After analysis, transition to `Stage 3b-f`.
+    - Identification of the relationship between failed test cases and changed code.
+    - Comparison of expected behavior with actual results.
+    After analysis, transition to `Stage 3c-f`.
 
-### Stage 3b-c
+### Stage 3c-c
 
-**Purpose:** Execute Lint/Fix on code files edited/created in Stage 3b-a.
+**Purpose:** Execute Lint/Fix on code files edited/created in Stage 3c-a.
 
-1. **Target File and Extension Identification:** Acquire files and their extensions edited/created in `Stage 3b-a`.
-2. **Command Definition Loading:** Load `.cursor/rules/settings/defined_commands.json` using `read_file` and search for command objects corresponding to the file extension.
+1. **Target File and Extension Identification:** Acquire files and their extensions edited/created in `Stage 3c-a`.
+2. **Command Definition Reading:** Read `Makefile` with `read_file` and search for command objects corresponding to the file extension.
 3. **Command Execution:**
-    - If command is found: Execute using `run_terminal_cmd`. If failed, proceed to `Stage 3b-f`. After Lint/Fix execution, confirm within possible range whether code inefficiencies (e.g., redundant loops, inefficient data structure usage) remain and attempt corrections.
-    - If command is not found: Proceed to `Stage 3b-f` (not subject to Lint or no configuration).
+    - If command is found: Execute with `run_terminal_cmd`. If failed, proceed to `Stage 3c-f`. After Lint/Fix execution, check if code inefficiencies (e.g., redundant loops, inefficient data structure usage) remain within feasible scope and attempt fixes.
+    - If command is not found: Proceed to `Stage 3c-f` (not subject to Lint or no configuration).
 
-### Stage 3b-d
+### Stage 3c-d
 
-**Purpose:** Perform multifaceted self-evaluation and self-correction on generated/edited code to improve quality.
+**Purpose:** Conduct multi-perspective self-evaluation and self-correction of generated/edited code to improve quality.
 
-1. **Thorough Action-Observation-Thinking Cycle:** Be conscious of the cycle of code generation/editing (action) -> Lint/test/self-evaluation (observation) -> problem analysis and correction policy consideration (thinking) -> correction code generation (action) to improve quality.
-2. **Automated Check:** Re-confirm Lint/Fix results from `Stage 3b-c`.
-3. **Perspective-based Self-Evaluation:** Identify specific problems based on checklists including but not limited to the following perspectives:
-    - Confirm whether general problems (e.g., unused variables, overly long lines, inappropriate naming) remain.
-    - Pay special attention to confirm whether there are signs of inaccurate information-based code generation (e.g., calling non-existent APIs, using arguments contradicting documentation).
-    - Self-review generated/edited code from perspectives of code correctness, efficiency, readability, maintainability, and security.
-    - Self-review whether instructed requirements are completely met, whether expected behavior occurs, and whether there are logical errors.
-    - **Deviation from Implementation Patterns and Best Practices:** Confirm whether generated/edited code does not significantly deviate from implementation patterns or best practices adopted in the project or generally recommended. If deviation exists, evaluate its validity.
-    - **Consistency of Programming Paradigm:** When a project adopts a specific programming paradigm, confirm whether generated/edited code is consistent with that paradigm.
-    - **Evaluation Based on Code Quality Metrics:** Evaluate from perspectives of code efficiency (e.g., presence of unnecessary calculations, redundant processing), readability (e.g., appropriate naming, quality and quantity of comments, complexity), bug patterns (e.g., boundary value errors, possibility of null pointer exceptions), security vulnerabilities (e.g., insufficient input validation, use of known vulnerable patterns).
+1. **Thorough Action, Observation, and Thinking Cycle:** Be conscious of the cycle of code generation/editing (action) → Lint/test/self-evaluation (observation) → problem analysis and correction policy consideration (thinking) → correction code generation (action) to improve quality.
+2. **Automatic Check:** Re-confirm Lint/Fix results from `Stage 3c-c`.
+3. **Self-Evaluation Based on Perspectives:** Identify specific problems based on checklists that include but are not limited to the following perspectives:
+    - Confirm that common problems (e.g., unused variables, overly long lines, inappropriate naming) do not remain.
+    - Pay special attention to confirm that there are no signs of code generation based on inaccurate information (e.g., calling non-existent APIs, using arguments that contradict documentation).
+    - Self-review the generated/edited code from perspectives of code correctness, efficiency, readability, maintainability, and security.
+    - Self-review whether it completely satisfies the instructed requirements, performs expected behavior, and has no logical errors.
+    - **Deviation from Implementation Patterns/Best Practices:** Confirm that the generated/edited code does not significantly deviate from implementation patterns or best practices adopted in the project or generally recommended. If there are deviations, evaluate their validity.
+    - **Programming Paradigm Consistency:** If the project adopts a specific programming paradigm, confirm that the generated/edited code is consistent with that paradigm.
+    - **Evaluation Based on Code Quality Metrics:** Evaluate from perspectives such as code efficiency (e.g., presence of unnecessary calculations, redundant processing), readability (e.g., appropriate naming, quality and quantity of comments, complexity), bug patterns (e.g., boundary value errors, possibility of null pointer exceptions), and security vulnerabilities (e.g., insufficient input validation, use of known vulnerable patterns).
     - Review generated/edited code based on instructed quality perspectives and best practices, and actively correct discovered problems. (Self-evaluation principles refer to `core_settings.md`)
-4. **Improvement Suggestions and Self-Correction:**
-    - Based on Step 3 evaluation, list improvable points if any.
-    - Attempt self-correction using `edit_file` or `reapply` for minor syntax errors, inconsistent naming conventions, simple logic mistakes, etc.
-    - If major design changes are necessary or when judgment is uncertain, include problems and multiple improvement proposals in user reports.
-    - **External Information Reference Consideration:** When solutions are unclear or seeking better implementation methods, consider using `web_search` tool to search for related information (latest library information, security vulnerability information, coding tips, etc.).
-5. **Problem Detection:** If discrepancies with instructions or serious problems remain after self-evaluation and correction, transition to `Stage 3b-f`.
+4. **Improvement Proposals and Self-Correction:**
+    - List improvable points based on Step 3 evaluation.
+    - Attempt self-correction using `edit_file` or `reapply` for minor syntax errors, naming convention inconsistencies, and simple logic mistakes.
+    - When major design changes are needed or when in doubt, include problems and multiple improvement proposals in user reports.
+    - **External Information Reference Consideration:** When solutions are unclear or when exploring better implementation methods, consider using the `web_search` tool to search for related information (latest library information, security vulnerability information, coding tips, etc.).
+5. **Problem Detection:** If discrepancies with instructions or serious problems remain after self-evaluation and correction, transition to `Stage 3c-f`.
 
-### Stage 3b-e (complete)
+### Stage 3c-e (complete)
 
-**Purpose:** Organize task execution results and deliverables, report to caller or users, and complete.
+**Purpose:** Organize task execution results and deliverables, and report to caller or user to complete.
 
-1. **Result Organization:** Organize results of overall executed plan Steps and final deliverables (e.g., edited file paths, test result summaries, Lint results, etc.).
-2. **Self-Evaluation:** Conduct final self-evaluation of generated code quality, comprehensiveness of tests and Lint/Fix, and self-correction capability (e.g., implementation of instructed functions, compliance with coding standards, no errors).
+1. **Result Organization:** Organize results of executed planned Steps overall and final deliverables. (e.g., post-edit file paths, test results summary, Lint results, etc.)
+2. **Self-Evaluation:** Conduct final self-evaluation of generated code quality, test and Lint/Fix coverage, and self-correction capabilities. (e.g., implementation of instructed functionality, code convention compliance, no errors)
 3. **Report Content Creation:**
-    - Structure execution results, deliverables, and self-evaluation, integrate with checklist from `{{received_context}}`, and internally create report content (framework of `{{handover_context}}`).
-        - **Direction:** (Task goal re-confirmation or final direction of completed tasks)
-        - **Context:** Overview of executed coding tasks (target files, major changes, etc.).
+    - Structure execution results, deliverables, and self-evaluation, integrating with checklists from `{{received_context}}` to internally create report content (foundation of `{{handover_context}}`).
+        - **Direction:** (Task objective re-confirmation, or final direction of completed task)
+        - **Context:** Overview of executed coding task (target files, main changes, etc.).
         - **Significance & Priority:** (Describe if there are noteworthy matters)
         - **Relationships & Dependencies:** (Describe if there are noteworthy matters)
         - **Abstraction Level:** (Describe if there are noteworthy matters)
-        - **Execution & Evaluation:** Execution status (success), deliverables (file paths, test result summaries, Lint results, etc.), self-evaluation (quality, comprehensiveness, instruction adherence, etc.).
-4. **Caller Judgment and Processing Branch:**
+        - **Execution & Evaluation:** Execution status (success), deliverables (file paths, test results summary, Lint results, etc.), self-evaluation (quality, coverage, instruction compliance, etc.).
+4. **Caller Determination and Processing Branch:**
     - **When `{{prev_cell}}` is `03_a_task_manager`:**
         - Set report content created in Step 3 to `{{handover_context}}`.
-        - State transition declaration: "Reporting results to `{{prev_cell}}` and ending processing."
-    - **Other cases:**
+        - State transition declaration: "Report results to `{{prev_cell}}` and end processing."
+    - **For other cases:**
         - Present report content created in Step 3 to users.
         - **State Transition Declaration: End (TIDE Step 4):**
             - Make the following declaration:
               "This concludes the role of `{{this_cell}}`. Subsequent responses will be handled by `{{prev_cell}}`."
         - **Next Cell Rule Application (TIDE Step 5):**
-            - If `01_orchestrator` is `{{prev_cell}}`, do not use `fetch_rules`; for other `{{prev_cell}}` cases, use `fetch_rules` tool to retrieve and apply rule files for `{{prev_cell}}` and immediately begin processing of `{{prev_cell}}`.
+            - If `{{prev_cell}}` is `01_orchestrator`, do not use `fetch_rules`; for other `{{prev_cell}}` cases, use the `fetch_rules` tool to obtain and apply the rule file for `{{prev_cell}}`, immediately beginning processing for `{{prev_cell}}`.
 
-### Stage 3b-f (error)
+### Stage 3c-f (error)
 
-**Purpose:** Respond to errors that occurred during execution and perform self-correction, plan review requests (TIDE application), or user consultation.
+**Purpose:** Respond to errors that occurred during execution through self-correction, plan review requests (TIDE application), or user consultation.
 
 1. **Problem Detection:** Detect errors during processing.
 2. **Cause Analysis:** Infer causes if possible.
-3. **Response Judgment:**
-    - **Self-Correction:** Attempt simple problems (e.g., `reapply`). If successful, return to original Stage.
-    - **Plan Review Request (Handover via TIDE):** When problems with the plan itself are suspected. Or when failure of any step is judged to have significant impact on executability of subsequent steps or overall plan achievement.
-    - Proceed to `Stage 3b-g`.
+3. **Response Decision:**
+    - **Self-Correction:** Try simple problems (e.g., `reapply`). If successful, return to original Stage.
+    - **Plan Review Request (Handover via TIDE):** When plan itself is suspected of problems. Or when failure of any step is judged to have serious impact on subsequent step feasibility or overall plan achievement.
+    - Proceed to `Stage 3c-g`.
     - **User Reporting:** When all above are considered insufficient, report to users.
 
-### Stage 3b-g (handover)
+### Stage 3c-g (handover)
 
 **Purpose:** Integrate and structure overall dialogue results and hand over to `{{next_cell}}` as `{{handover_context}}`.
 
-1. **Transition Trigger/Judgment (TIDE Step 1):** Begin transition only when plan review request is selected in `Stage 3b-f`.
+1. **Transition Trigger/Decision (TIDE Step 1):** Begin transition only when plan review request is selected in `Stage 3c-f`.
 2. **Next Cell Identification (TIDE Step 2):**
     - **When `{{prev_cell}}` is `03_a_task_manager`:**
         - Specify `03_a_task_manager` as `{{next_cell}}`. (Report problems to plan execution Executor and promote re-planning or escalation to higher levels)
-    - **Other cases:**
-        - Specify `02_planner` as `{{next_cell}}`. (When problems occur during direct execution from Orchestrator, etc., go to Planner)
+    - **For other cases:**
+        - Specify `02_planner` as `{{next_cell}}`. (When problems occur in direct execution from Orchestrator, etc., to Planner)
 3. **Inherited Context Specification (TIDE Step 3):**
-    - Set as `{{handover_context}}` "truly necessary information" considering the 6-item inherited context so that `{{next_cell}}` can effectively fulfill its responsibilities (problem analysis, re-planning, etc.).
-        - **Direction:** Direction seeking re-planning or solutions (e.g., "Request cause analysis and plan correction due to error during coding task execution").
-        - **Context:** Stage where error occurred (e.g., `Stage 3b-a during code editing`), error messages, related file paths, attempted commands or code.
-        - **Significance & Priority:** Problem importance, impact on overall task or subsequent processing.
+    - Set `{{handover_context}}` with "truly necessary information" for `{{next_cell}}` to effectively fulfill its responsibilities (problem analysis, re-planning, etc.), considering the 6 inherited context items.
+        - **Direction:** Direction seeking re-planning or response (e.g., "Error occurred during coding task execution, requesting cause analysis and plan correction").
+        - **Context:** Stage where error occurred (e.g., `Stage 3c-a during code editing`), error messages, related file paths, attempted commands or code.
+        - **Significance & Priority:** Problem severity, impact on overall task and subsequent processing.
         - **Relationships & Dependencies:** (Describe dependency information useful for error analysis if any)
-        - **Abstraction Level:** (Describe if there are noteworthy points about problem reporting granularity)
-        - **Execution & Evaluation:** Execution status (failure), attempted self-repair and its results (e.g., tried `reapply` but not resolved), initial error analysis results.
+        - **Abstraction Level:** (Describe notable aspects of problem reporting granularity if any)
+        - **Execution & Evaluation:** Execution status (failure), attempted self-repair and its results (e.g., tried `reapply` but unresolved), initial error analysis results.
 4. **State Transition Declaration: End (TIDE Step 4):**
     - Make the following declaration:
       "This concludes the role of `{{this_cell}}`. Subsequent responses will be handled by `{{next_cell}}`."
 5. **Next Cell Rule Application (TIDE Step 5):**
-    - Use `fetch_rules` tool to retrieve and apply rule files for `{{next_cell}}`, and immediately begin processing of `{{next_cell}}`.
+    - Use the `fetch_rules` tool to obtain and apply the rule file for `{{next_cell}}`, immediately beginning processing for `{{next_cell}}`.
+
