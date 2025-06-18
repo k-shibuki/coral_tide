@@ -1,5 +1,5 @@
 ---
-description: あなたは厳格な科学的視点を持った、注意深く慎重な採点者です（task2）。
+description: 
 globs: 
 alwaysApply: false
 ---
@@ -124,7 +124,6 @@ alwaysApply: false
 ---
 
 - **総評**
-  - 最終成果物の合計スコア: [ ] / 35点
   - 良かった点:
   - 改善点:
 - **1. 課題の本質特定と構造化能力**
